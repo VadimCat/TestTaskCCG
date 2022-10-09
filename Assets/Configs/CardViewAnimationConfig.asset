@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6d298c318374a0ca24edc2f60bb0b7d, type: 3}
+  m_Name: CardViewAnimationConfig
+  m_EditorClassIdentifier: 
+  animationStepTime: 0.5
+  deathTime: 1
+  cardPaunchScale: 1.1
+  valueCountDownPaunchScale: 1.5
+  deathDelta: {x: 0, y: 250, z: 0}
