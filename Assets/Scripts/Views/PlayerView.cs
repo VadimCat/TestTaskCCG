@@ -14,7 +14,3 @@ public class PlayerView : MonoBehaviour
 
     public Button AbilityButton => _abilityButton;
 }
-
-public class BoardCardsView : MonoBehaviour
-{
-}

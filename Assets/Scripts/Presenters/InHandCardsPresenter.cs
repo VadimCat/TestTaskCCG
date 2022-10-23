@@ -10,17 +10,27 @@ namespace Presenters
         private readonly ICharacter _character;
         private readonly InHandCardsView _view;
         private readonly ICardViewFactory _cardViewFactory;
+        private readonly InGameCardsService inGameCardsService;
+        private readonly CardDragger cardDragger;
 
         private ModelAnimationProxy _animationProxy;
 
-        public InHandCardsPresenter(ICharacter character, InHandCardsView view, ICardViewFactory cardViewFactory)
+        public InHandCardsPresenter(ICharacter character, InHandCardsView view, ICardViewFactory cardViewFactory,
+            InGameCardsService inGameCardsService, CardDragger cardDragger)
         {
             _character = character;
             _view = view;
             _cardViewFactory = cardViewFactory;
+            this.inGameCardsService = inGameCardsService;
+            this.cardDragger = cardDragger;
 
+            cardDragger.OnCardDropFail += view.UpdatePoses;
+            cardDragger.OnCardDrop += view.RemoveCard;
+            
             _animationProxy = new ModelAnimationProxy();
-            character.OnCardsDealt += FillCards;
+            _animationProxy.OnAnimationStepStart += cardDragger.Disable;
+            _animationProxy.OnAnimationStepComplete += cardDragger.Enable;
+            character.OnBoardUpdate += FillCards;
 
             FillCards(character.InHandCards);
         }
@@ -30,10 +40,13 @@ namespace Presenters
             foreach (var card in cards)
             {
                 var cardView = _cardViewFactory.Create(card.Id, _view.CardsRoot);
+                cardDragger.RegisterCard(cardView);
+                inGameCardsService.RegisterCard(card, cardView);
                 cardView.SetMana(card.ManaCost.Value, 0);
                 cardView.SetAttack(card.Attack.Value, 0);
                 cardView.SetHealth(card.Health.Value, 0);
-            
+
+                //TODO: Logic for CardPresenter created from CharacterPresenter
                 card.ManaCost.OnValueChanged += (value, prevValue) =>
                     _animationProxy.EnqueueAction(() =>
                         cardView.SetMana(value, prevValue));
@@ -44,7 +57,7 @@ namespace Presenters
 
                     if (value <= 0)
                     {
-                    
+                        inGameCardsService.UnregisterCard(card);
                         _animationProxy.EnqueueAction(() =>
                         {
                             _view.RemoveCard(cardView);
@@ -67,7 +80,7 @@ namespace Presenters
 
         public void Dispose()
         {
-            _character.OnCardsDealt -= FillCards;
+            _character.OnBoardUpdate -= FillCards;
         }
     }
 }

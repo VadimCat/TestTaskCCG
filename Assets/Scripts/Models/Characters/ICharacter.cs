@@ -8,7 +8,7 @@ namespace Models
         public List<ICard> InHandCards { get; set; }
         public List<ICard> BoardCards { get; set; }
 
-        public event Action<List<ICard>> OnCardsDealt;
+        public event Action<List<ICard>> OnBoardUpdate;
         event Action<ICard> OnCardDestroy; 
 
         public void RemoveCardFromHand(ICard card)
@@ -16,11 +16,7 @@ namespace Models
             InHandCards.Remove(card);
         }
 
-        public void SetCardOnTable(ICard card, int index)
-        {
-            BoardCards.Insert(index, card);
-        }
-
+        public bool TrySetCardOnTable(ICard card, int index);
         public void DealCards(List<ICard> dealtCards);
         void UseAbility();
     }

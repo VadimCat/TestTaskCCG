@@ -32,7 +32,7 @@ namespace Views
             UpdatePoses();
         }
 
-        private void UpdatePoses()
+        public void UpdatePoses()
         {
             for (int i = 0; i < _cards.Count; i++)
             {

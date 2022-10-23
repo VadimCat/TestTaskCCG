@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Presenters
 {
@@ -11,6 +12,11 @@ namespace Presenters
 
         private bool _isAnimating;
 
+        public event Action OnAnimationStepStart; 
+        public event Action OnAnimationStepComplete; 
+
+        public bool IsAnimating => _isAnimating;
+
         public void AddAnimatableItem(CardView cardView)
         {
             _animationItems.Add(cardView);
@@ -18,6 +24,7 @@ namespace Presenters
             {
                 _isAnimating = false;
                 TryPlayNext();
+                OnAnimationStepComplete?.Invoke();
             };
         }
 
@@ -36,6 +43,8 @@ namespace Presenters
         {
             if (_isAnimating)
                 return;
+
+            OnAnimationStepStart?.Invoke();
 
             if (updatesQueue.TryDequeue(out var action))
             {

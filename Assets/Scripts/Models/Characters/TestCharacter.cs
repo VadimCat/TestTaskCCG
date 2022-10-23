@@ -10,8 +10,19 @@ namespace Models
         public List<ICard> InHandCards { get; set; } = new(Constants.MaxCardsInHandExclusive - 1);
         public List<ICard> BoardCards { get; set; } = new(Constants.MaxCardsOnBoard);
 
+        public event Action<List<ICard>> OnBoardUpdate;
         public event Action<List<ICard>> OnCardsDealt;
         public event Action<ICard> OnCardDestroy;
+
+        public bool TrySetCardOnTable(ICard card, int index)
+        {
+            if (BoardCards.Count > Constants.MaxCardsOnBoard)
+                return false;
+
+            InHandCards.Remove(card);
+            BoardCards.Insert(index, card);
+            return true;
+        }
 
         public void DealCards(List<ICard> dealtCards)
         {

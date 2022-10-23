@@ -2,11 +2,12 @@
 using Client;
 using DG.Tweening;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CardView : MonoBehaviour
+public class CardView : MonoBehaviour, IPointerDownHandler, IPointerMoveHandler, IPointerUpHandler
 {
     [SerializeField] private CanvasGroup rootCanvas;
     [SerializeField] private CardViewAnimationConfig _animationConfig;
@@ -18,6 +19,9 @@ public class CardView : MonoBehaviour
     [SerializeField] private TMP_Text description;
     [SerializeField] private Image backShine;
 
+    public event Action<CardView> OnHoldStart;
+    public event Action<CardView> OnHold;
+    public event Action<CardView> OnHoldEnd;
     public event Action OnAnimationComplete;
 
     public void LocalMoveTo(Vector3 pos)
@@ -75,8 +79,13 @@ public class CardView : MonoBehaviour
 
     public void EnableDragStyle(bool isDrag)
     {
-        backShine.DOColor(isDrag ? Color.green : Color.white, _animationConfig.CardPaunchScale)
+        var seq = DOTween.Sequence();
+        seq.Join(backShine.DOColor(isDrag ? Color.white : Color.green, _animationConfig.AnimationStepTime))
+            .Join(transform.DOScale(isDrag ? .75f : 1f, _animationConfig.AnimationStepTime))
+            .Join(transform.DORotateQuaternion(quaternion.identity, _animationConfig.AnimationStepTime))
             .onComplete += InvokeAnimationComplete;
+
+        seq.Play();
     }
 
     public void AnimateDeath()
@@ -99,5 +108,23 @@ public class CardView : MonoBehaviour
     private void OnDestroy()
     {
         OnAnimationComplete = null;
+        OnHoldStart = null;
+        OnHold = null;
+        OnHoldEnd = null;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        OnHoldStart?.Invoke(this);
+    }
+
+    public void OnPointerMove(PointerEventData eventData)
+    {
+        OnHold?.Invoke(this);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        OnHoldEnd?.Invoke(this);
     }
 }
